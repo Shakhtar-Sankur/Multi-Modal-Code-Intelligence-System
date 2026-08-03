@@ -1,0 +1,12 @@
+model:
+  path: roberta-base  
+  save_path: ./models/codebert_finetuned
+  device: cuda
+training:
+  output_dir: ./results
+  logging_dir: ./logs
+  epochs: 3
+  batch_size: 8
+data:
+  train_path: ./data/code_corpus.jsonl
+  val_path: ./data/validation.json

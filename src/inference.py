@@ -1,4 +1,4 @@
-from src.model import CodeUnderstandingModel
+from .model import CodeUnderstandingModel
 import torch
 import logging
 

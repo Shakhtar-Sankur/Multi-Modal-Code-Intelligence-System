@@ -11,7 +11,7 @@ language model can read, and a syntax tree that carries structure the tokens alo
 
 ```
 src/
-  preprocess.py   tree-sitter parsing and tokenisation
+  preprocess.py   tree-sitter parsing: comment removal and definition extraction
   model.py        CodeUnderstandingModel
   inference.py    CodeAnalyzer — the analysis entry point
   train.py        fine-tuning loop
@@ -39,15 +39,51 @@ architecture and algorithm choice, not as claims about observed performance.
 
 ```bash
 pip install -r requirements.txt
-python main.py            # CLI
-python api.py             # HTTP API
+python main.py --code_file path/to/file.py     # CLI
+python api.py                                   # HTTP API
+```
+
+The Python grammar arrives with the `tree-sitter-python` wheel, so there is no build step.
+Adding another language means installing its wheel and adding one line to
+`LANGUAGE_MODULES` in `src/preprocess.py`.
+
+`config.yaml` defaults to `device: auto`, which uses CUDA when it is present and CPU
+otherwise.
+
+Parsing a file returns the definitions it contains:
+
+```
+functions: ['top_level']
+methods  : ['method_one', 'method_two']
+classes  : ['Widget']
 ```
 
 ## Status
 
-Working skeleton: parsing, model definition, training loop, inference and API are all
-present and wired together. It is a compact implementation — around 240 lines of Python —
-not a finished product.
+Working skeleton: parsing, model definition, training loop, inference and API are present
+and wired together. It is a compact implementation — around 240 lines of Python — not a
+finished product.
+
+### Notes from a correctness pass
+
+Four defects fixed:
+
+- **The parser could not load.** `load_parser` built a `Language` from
+  `build/my-languages.so` using the pre-0.22 tree-sitter API. That file was never in the
+  repository and nothing generated it, so `preprocess_code` failed on every clone. The
+  grammar now comes from a wheel.
+- **Comment stripping corrupted code.** `re.sub(r'#.*?
+', ...)` cuts at any `#`, including
+  one inside a string. A line like `url = "http://example.com/#anchor"` became
+  `url = "http://example.com/` — an unterminated literal, and the file no longer parsed.
+  Comments are now removed by their parse-tree spans.
+- **Every method was invisible.** Definitions were read from `root_node.children`, which
+  only reaches the top level; methods live inside a class body. The walk now covers the
+  whole tree and reports functions and methods separately.
+- **The default config could not run on a CPU machine.** `config.yaml` set `device: cuda`
+  while the model chose its own device, so the model sat on CPU and the inputs went to
+  CUDA. Device is resolved once and shared. The analyzer also forwarded `token_type_ids`
+  into a `forward()` that takes only `input_ids` and `attention_mask`.
 
 ## Licence
 

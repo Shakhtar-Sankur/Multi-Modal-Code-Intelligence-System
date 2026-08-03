@@ -1,6 +1,7 @@
 torch>=1.10.0
 transformers>=4.20.0
-tree-sitter>=0.20.0
+tree-sitter>=0.22.0
+tree-sitter-python>=0.21.0
 flask>=2.0.0
 streamlit>=1.10.0
 datasets>=2.0.0

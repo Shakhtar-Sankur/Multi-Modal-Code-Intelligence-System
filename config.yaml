@@ -1,7 +1,7 @@
 model:
   path: roberta-base  
   save_path: ./models/codebert_finetuned
-  device: cuda
+  device: auto        # auto | cpu | cuda
 training:
   output_dir: ./results
   logging_dir: ./logs

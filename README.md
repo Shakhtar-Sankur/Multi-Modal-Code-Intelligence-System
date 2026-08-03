@@ -1,73 +1,54 @@
 # Multi-Modal Code Intelligence System
 
-An AI-powered code intelligence system that understands, analyzes, and generates code across multiple programming languages with contextual insights and intelligent suggestions.
+**A transformer-based system for analysing source code — parsing it structurally as well
+as reading it as text.**
 
-## Features
+"Multi-modal" here means the code is treated as two things at once: a token sequence a
+language model can read, and a syntax tree that carries structure the tokens alone lose.
+`tree-sitter` provides the parse; the transformer provides the semantics.
 
-- **Smart Code Analysis**: Deep understanding of code semantics and business logic
-- **Context-Aware Completion**: Intelligent suggestions based on entire codebase
-- **Documentation Generation**: Automatic docstring and comment generation
-- **Security Analysis**: Vulnerability detection and code quality assessment
-- **Multi-Language Support**: Python, JavaScript, Java, C++, and more
-- **Natural Language to Code**: Convert descriptions to working code
+## What's here
 
-## Quick Start
-
-### Prerequisites
-- Python 3.9+
-- Docker and Docker Compose
-- 16GB+ RAM recommended
-- CUDA-capable GPU (optional, for faster inference)
-
-
-## Architecture
-
-```
-Frontend (VS Code Extension, Web Dashboard, CLI)
-           ↓
-API Gateway (FastAPI + Authentication)
-           ↓
-Core Intelligence Engine
-├── Code Analysis Service
-├── NLP Processing Service
-└── Generation Engine Service
-           ↓
-Data Layer
-├── Vector Database (ChromaDB)
-├── Code Repository (PostgreSQL)
-└── Knowledge Graph (Neo4j)
-```
-
-## Technology Stack
-
-- **AI/ML**: PyTorch, Hugging Face Transformers, CodeT5+, StarCoder2
-- **Backend**: FastAPI, Redis, Apache Kafka
-- **Databases**: PostgreSQL, ChromaDB, Neo4j
-- **Deployment**: Docker, Kubernetes, AWS/GCP
-- **Code Analysis**: Tree-sitter, AST parsing
-
-## Development
-
-### Project Structure
 ```
 src/
-├── core/           # Core intelligence engine
-├── analyzers/      # Code analysis modules
-├── generators/     # Code generation modules
-├── nlp/           # NLP processing modules
-└── api/           # API endpoints
-models/            # Pre-trained models
-tests/             # Test suite
-deployment/        # Docker, K8s configs
+  preprocess.py   tree-sitter parsing and tokenisation
+  model.py        CodeUnderstandingModel
+  inference.py    CodeAnalyzer — the analysis entry point
+  train.py        fine-tuning loop
+  visualize.py    attention and structure views
+  utils.py        logging and config loading
+api.py            Flask endpoint
+main.py           CLI entry point
+config.yaml       model and runtime settings
 ```
 
+## Design targets
 
-## Performance
+- Analysis across several languages from one model
+- Structural understanding rather than pattern matching over text
+- Fast enough to sit in an editor loop
 
-- **Code Completion**: <200ms response time
-- **Analysis**: <2s for comprehensive code analysis
-- **Accuracy**: >85% code completion acceptance rate
-- **Throughput**: 1000+ concurrent requests
+## On the numbers
 
+The figures above are **design targets** that shaped the implementation — they are not
+measured results. This repository ships no benchmark harness and no trained weights, so
+nothing here reproduces them. They are recorded because they drove real decisions about
+architecture and algorithm choice, not as claims about observed performance.
 
+## Running it
 
+```bash
+pip install -r requirements.txt
+python main.py            # CLI
+python api.py             # HTTP API
+```
+
+## Status
+
+Working skeleton: parsing, model definition, training loop, inference and API are all
+present and wired together. It is a compact implementation — around 240 lines of Python —
+not a finished product.
+
+## Licence
+
+All rights reserved. Published for reading, not for reuse.

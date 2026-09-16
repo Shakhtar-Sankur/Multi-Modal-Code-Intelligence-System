@@ -64,6 +64,26 @@ Working skeleton: parsing, model definition, training loop, inference and API ar
 and wired together. It is a compact implementation — around 240 lines of Python — not a
 finished product.
 
+## Tests
+
+```bash
+pip install torch tree-sitter tree-sitter-python pyyaml pytest
+pytest -q
+```
+
+17 tests, aimed at the parsing and the runtime choices rather than the model.
+Both defects recorded below are pinned: a `#` inside a string or a URL survives
+preprocessing, and methods inside a class are collected as methods instead of
+being missed. The stripped source is compiled to prove it is still valid
+Python. Device selection is checked for falling back to CPU — and saying so —
+when `config.yaml` asks for CUDA on a machine without it.
+
+`resolve_device` moved to `src/utils.py`: importing `src/inference.py` pulls in
+transformers, and nothing about choosing a device needs a 500 MB library.
+`src.inference.resolve_device` still works, as a re-export.
+
+Run on Python 3.10 and 3.12 by [GitHub Actions](.github/workflows/tests.yml).
+
 ### Notes from a correctness pass
 
 Four defects fixed:

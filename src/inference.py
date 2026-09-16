@@ -1,21 +1,9 @@
 from .model import CodeUnderstandingModel
+# Device selection lives in utils: it is ordinary logic, and importing this
+# module pulls in transformers, which nothing about choosing a device needs.
+from .utils import resolve_device  # noqa: F401  (re-exported)
 import torch
 import logging
-
-def resolve_device(requested=None):
-    """Pick a torch device, falling back to CPU when CUDA is not available.
-
-    config.yaml ships `device: cuda`, so on any machine without a GPU the model
-    landed on CPU while the inputs were sent to CUDA, and inference died on a
-    device mismatch. Asking for cuda without cuda now warns and uses the CPU.
-    """
-    if requested in (None, 'auto'):
-        return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    if str(requested).startswith('cuda') and not torch.cuda.is_available():
-        logging.warning("device=%s requested but CUDA is unavailable; using CPU", requested)
-        return torch.device('cpu')
-    return torch.device(requested)
-
 
 class CodeAnalyzer:
     def __init__(self, model_path, device=None):
